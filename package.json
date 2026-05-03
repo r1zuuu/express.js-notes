@@ -1,0 +1,21 @@
+{
+  "name": "notes",
+  "version": "1.0.0",
+  "description": "notes",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "notes-express"
+  },
+  "keywords": [
+    "none"
+  ],
+  "author": "rizu",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
