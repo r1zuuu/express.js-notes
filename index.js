@@ -58,3 +58,16 @@ app.delete('/notes/:id', (req, res) => {
     }
     res.status(200).json({ message: "Usunięto", data: notes })
 })
+
+app.put('/notes/:id', (req, res) => {
+    const { id } = req.params
+    const tresc = req.body.tresc
+
+    const noteToUpdate = notes.find((item) => item.id == id)
+    if(noteToUpdate == undefined){
+        return res.status(404).send('Note not found')
+    }
+
+    noteToUpdate.content = tresc
+
+})
