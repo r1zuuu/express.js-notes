@@ -1,14 +1,11 @@
-const express = require('express')
-const crypto = require('crypto');
+import fs from 'fs'
+import express from 'express';
+import crypto from 'crypto'
 const app = express()
 const PORT = '3000'
 
-
 app.use(express.json())
 
-let notes = [
-    
-]
 app.listen(PORT, (error) => {
     if(!error){
         console.log(`Server is running on ${PORT}`)
@@ -19,18 +16,49 @@ app.listen(PORT, (error) => {
 })
 // wszystkie notatki
 app.get('/notes', (req, res) => {
-    res.json(notes)
+
+    fs.readFile('./notes.json', 'utf-8', (err, data) => {
+        if(err){
+            console.log('Error:', err)
+            return res.status(500).send('Error reading notes')
+        }
+        const notes = JSON.parse(data)
+        res.json(notes)
+    })
 })
 //post na notatki 
 app.post('/notes', (req, res) => {
+    const tresc = req.body
     const id = crypto.randomUUID()
+    fs.readFile('./notes.json', 'utf-8', (err, data) => {
 
-    const tresc = req.body.tresc
+        const notes = JSON.parse(data);
+        const notesToPush = {id, ...req.body}
+        notes.push(notesToPush)
 
-    const nowaNotatka = {id, content: tresc}
+        fs.writeFile('./notes.json', JSON.stringify(notes, null, 2), (err) => {
+            if(err){
+                return res.status(500).send('Error writing notes')
+            }else{
+                return res.status(201).json(notesToPush)
+            }
+        })
+    })
 
-    notes.push(nowaNotatka)
-    res.status(201).json(nowaNotatka)
+    // fs.writeFileSync('./notes.json', 'utf-8',  (err, data) => {
+    //     if(err){
+    //         console.log('Error:', err)
+    //         return res.status(500).send('Error writing notes')
+    //     }
+    //     else{
+    //         const tresc = data
+    //         const nowaNotatka = {id, content: tresc}
+
+    //         notes.push(nowaNotatka)
+    //         res.status.json(nowaNotatka)
+    //     }
+
+    // })
 })
 //poszczegolna notatka o danym id find
 app.get('/notes/:id', (req, res) => {
