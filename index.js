@@ -64,38 +64,95 @@ app.post('/notes', (req, res) => {
 app.get('/notes/:id', (req, res) => {
     const { id } = req.params
 
-    const found = notes.find((item) => item.id === id);
-    if(found == undefined){
-        return res.status(404).send('Not found')
-    }
-    res.status(200).json(found)
+    fs.readFile('./notes.json', (err, data ) => {
+        if(err){
+            return res.status(500).send('Error reading notes')
+        }
+        const parsedData = JSON.parse(data)
+
+        const note = data.find((item) => item.id == id)
+
+        res.status(200).json(note)
+    })
+
+    
+
+    // const found = notes.find((item) => item.id === id);
+    // if(found == undefined){
+    //     return res.status(404).send('Not found')
+    // }
+    // res.status(200).json(found)
 })
 // usuniecie notatki maly bug nawet jak nie ma takiej notatki i tak zwroci 404 ale to mozna zajac sie pozniej -> .some()
 app.delete('/notes/:id', (req, res) => {
     const { id } = req.params
+    fs.readFile('./notes.json', (err, data ) => {
+        const parsedData = JSON.parse(data)
+        const filteredData = parsedData.filter((item) => item.id !== id)
+        if (filteredData.length > parsedData.length){
+            return res.status(200).send('Deleted')
+        }
+           
+        fs.writeFile('./notes.json', JSON.stringify(filteredData, null, 2),(err) => {
+            if(err){
+                return res.status(500).send('Error deleting note')
+            }
+            else{
+                return res.status(200).json(filteredData)
+            }
+        })
+    })
+ 
+    
 
 
-    if(notes.length == 0){
-        return res.status(404).send('Pusta tablica z notatkami nie ma nic do usuniecia')
-    }
 
-    notes = notes.filter((item) => item.id !== id)
+    // const { id } = req.params
 
-    if(!notes.length){
-        return res.status(200).send('No response')
-    }
-    res.status(200).json({ message: "Usunięto", data: notes })
+
+    // if(notes.length == 0){
+    //     return res.status(404).send('Pusta tablica z notatkami nie ma nic do usuniecia')
+    // }
+
+    // notes = notes.filter((item) => item.id !== id)
+
+    // if(!notes.length){
+    //     return res.status(200).send('No response')
+    // }
+    // res.status(200).json({ message: "Usunięto", data: notes })
 })
 
 app.put('/notes/:id', (req, res) => {
     const { id } = req.params
     const tresc = req.body.tresc
 
-    const noteToUpdate = notes.find((item) => item.id == id)
-    if(noteToUpdate == undefined){
-        return res.status(404).send('Note not found')
-    }
+    fs.readFile('./notes.json', (err, data ) => {
+        const parsedData = JSON.parse(data)
+        const noteToUpdate = parsedData.find((item) => item.id == id)
+        if (!noteToUpdate){
+            return res.status(404).send('Not found')
+        }
+        noteToUpdate.tresc = tresc
+        
+        fs.writeFile('./notes.json', JSON.stringify(parsedData, null, 2),(err) => {
+            if(err){
+                return res.status(500).send('Error updating note')
+            }
+            else{
+                return res.status(200).json(noteToUpdate)
+            }
+        })
+    })
 
-    noteToUpdate.content = tresc
+
+    // const { id } = req.params
+    // const tresc = req.body.tresc
+
+    // const noteToUpdate = notes.find((item) => item.id == id)
+    // if(noteToUpdate == undefined){
+    //     return res.status(404).send('Note not found')
+    // }
+
+    // noteToUpdate.content = tresc
 
 })
