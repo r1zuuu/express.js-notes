@@ -4,6 +4,17 @@ import crypto from 'crypto'
 const app = express()
 const PORT = '3000'
 
+const validateNote = (req, res, next) =>{
+    const content = req.body.tresc
+    if(content.length == 0){
+        res.status(400).send('Empty string')
+
+    }else{
+        req.body.tresc = content.trim()
+        next()
+    }
+}
+
 app.use(express.json())
 
 app.listen(PORT, (error) => {
@@ -27,7 +38,7 @@ app.get('/notes', (req, res) => {
     })
 })
 //post na notatki 
-app.post('/notes', (req, res) => {
+app.post('/notes', validateNote,  (req, res) => {
     const tresc = req.body
     const id = crypto.randomUUID()
     fs.readFile('./notes.json', 'utf-8', (err, data) => {
@@ -122,7 +133,7 @@ app.delete('/notes/:id', (req, res) => {
     // res.status(200).json({ message: "Usunięto", data: notes })
 })
 
-app.put('/notes/:id', (req, res) => {
+app.put('/notes/:id', validateNote, (req, res) => {
     const { id } = req.params
     const tresc = req.body.tresc
 
