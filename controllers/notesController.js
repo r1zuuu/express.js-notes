@@ -10,7 +10,7 @@ const getNotes = (req, res) => {
     fs.readFile(notesFile, 'utf-8', (err, data) => {
         if(err){
             console.log('Error:', err)
-            return res.status(500).send('Error reading notes')
+            return res.status(500).json({message: 'Error reading notes'})
         }
         const notes = JSON.parse(data)
         res.json(notes)
@@ -28,7 +28,7 @@ const postNote = (req, res) => {
 
         fs.writeFile(notesFile, JSON.stringify(notes, null, 2), (err) => {
             if(err){
-                return res.status(500).send('Error writing notes')
+                return res.status(500).json({message: 'Error writing notes'})
             }else{
                 return res.status(201).json(notesToPush)
             }
@@ -56,7 +56,7 @@ const getNote = (req, res) => {
 
     fs.readFile(notesFile, (err, data ) => {
         if(err){
-            return res.status(500).send('Error reading notes')
+            return res.status(500).json({message: 'Error reading notes'})
         }
         const parsedData = JSON.parse(data)
 
@@ -76,19 +76,20 @@ const getNote = (req, res) => {
 // usuniecie notatki maly bug nawet jak nie ma takiej notatki i tak zwroci 404 ale to mozna zajac sie pozniej -> .some()
 const deleteNote = (req, res) => {
     const { id } = req.params
+
     fs.readFile(notesFile, (err, data ) => {
         const parsedData = JSON.parse(data)
         const filteredData = parsedData.filter((item) => item.id !== id)
         if (filteredData.length > parsedData.length){
-            return res.status(200).send('Deleted')
+            return res.status(200).json({message: 'Deleted'})
         }
            
         fs.writeFile(notesFile, JSON.stringify(filteredData, null, 2),(err) => {
             if(err){
-                return res.status(500).send('Error deleting note')
+                return res.status(500).json({message: 'Error deleting note'})
             }
             else{
-                return res.status(200).json(filteredData)
+                return res.status(200).json({message: 'Note deleted'})
             }
         })
     })
