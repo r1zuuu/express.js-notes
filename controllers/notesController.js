@@ -80,10 +80,13 @@ const deleteNote = (req, res) => {
     const { id } = req.params
 
     fs.readFile(notesFile, (err, data ) => {
+        if(err){
+            return res.status(500).json({message: 'Error reading notes problem with db'})
+        }
         const parsedData = JSON.parse(data)
         const filteredData = parsedData.filter((item) => item.id !== id)
-        if (filteredData.length > parsedData.length){
-            return res.status(200).json({message: 'Deleted'})
+        if (filteredData.length === parsedData.length){
+            return res.status(404).json({message: 'Note not found'})
         }
            
         fs.writeFile(notesFile, JSON.stringify(filteredData, null, 2),(err) => {
