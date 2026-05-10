@@ -61,7 +61,9 @@ const getNote = (req, res) => {
         const parsedData = JSON.parse(data)
 
         const note = parsedData.find((item) => item.id == id)
-
+        if (!note){
+            return res.status(404).json({message: 'Note not found'})
+        }
         res.status(200).json(note)
     })
 
@@ -121,13 +123,13 @@ const updateNote = (req, res) => {
         const parsedData = JSON.parse(data)
         const noteToUpdate = parsedData.find((item) => item.id == id)
         if (!noteToUpdate){
-            return res.status(404).send('Not found')
+            return res.status(404).json({message: 'Not found'})
         }
         noteToUpdate.tresc = tresc
         
         fs.writeFile(notesFile, JSON.stringify(parsedData, null, 2),(err) => {
             if(err){
-                return res.status(500).send('Error updating note')
+                return res.status(500).json({message: 'Error updating note'})
             }
             else{
                 return res.status(200).json(noteToUpdate)
