@@ -1,5 +1,6 @@
 const express = require('express');
 const notesRoutes = require('./routes/notesRoutes');
+const authRoutes = require('./routes/authRoutes');
 require('dotenv').config();
 
 
@@ -9,6 +10,7 @@ const app = express();
 app.use(express.json());
 
 app.use('/notes', notesRoutes);
+app.use('/', authRoutes);
 
 app.use((req, res) => {
     res.status(404).json({message: `Route ${req.originalUrl} not found`})

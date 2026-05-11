@@ -3,6 +3,7 @@ const path = require('path')
 const crypto = require('crypto')
 
 const notesFile = path.join(__dirname, '..', 'data', 'notes.json')
+const usersFile = path.join(__dirname, '..', 'data', 'users.json')
 
 // wszystkie notatki
 const getNotes = (req, res) => {
@@ -153,10 +154,38 @@ const updateNote = (req, res) => {
 
 }
 
+const login = (req, res) =>{
+    const {email, password} = req.body;
+
+    const data = fs.readFile(usersFile, 'utf-8', (err, data) => {
+        const users = JSON.parse(data)
+
+        const user = users.find((user) => user.email === email)
+
+        if(!user){
+            return res.status(401).json({message: "Wrong credentials!"})
+        }
+        if(user.password !== password){
+            return res.status(401).json({message: "Wrong credentials!"})
+        }
+        else{
+            return res.status(200).json({message: `Welcome ${user.email}`})
+        }
+    })
+    
+
+
+
+    // if(email === "admin" && password === "admin123"){
+    //     return res.json({message: "Logged in!"})}
+    // return res.status(401).json({message: "Wrong credentials"})
+}
+
 module.exports = {
     getNotes,
     postNote,
     getNote,
     deleteNote,
-    updateNote
+    updateNote,
+    login
 }
