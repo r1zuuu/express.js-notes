@@ -172,9 +172,10 @@ const login = (req, res) =>{
         else{
             const token = jwt.sign(
                 {email: user.email},
-                process.env.JWT_SECRET || {expiresIn: '1h'}
+                process.env.JWT_SECRET,
+                {expiresIn: '1h'}
             )
-            return res.status(200).json({message: `Welcome ${user.email}`})
+            return res.status(200).json({message: `Welcome ${user.email}`, token})
         }
     })
     
