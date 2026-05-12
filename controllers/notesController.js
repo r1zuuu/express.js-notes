@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const crypto = require('crypto')
+const jwt = require('jsonwebtoken')
 
 const notesFile = path.join(__dirname, '..', 'data', 'notes.json')
 const usersFile = path.join(__dirname, '..', 'data', 'users.json')
@@ -169,6 +170,10 @@ const login = (req, res) =>{
             return res.status(401).json({message: "Wrong credentials!"})
         }
         else{
+            const token = jwt.sign(
+                {email: user.email},
+                process.env.JWT_SECRET || {expiresIn: '1h'}
+            )
             return res.status(200).json({message: `Welcome ${user.email}`})
         }
     })
