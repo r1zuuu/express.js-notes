@@ -177,29 +177,46 @@ const updateNote = (req, res) => {
 
 }
 
-const login = (req, res) =>{
+const login = async (req, res) =>{
     const {email, password} = req.body;
 
-    const data = fs.readFile(usersFile, 'utf-8', (err, data) => {
-        const users = JSON.parse(data)
-
-        const user = users.find((user) => user.email === email)
-
-        if(!user){
-            return res.status(401).json({message: "Wrong credentials!"})
-        }
-        if(user.password !== password){
-            return res.status(401).json({message: "Wrong credentials!"})
-        }
-        else{
-            const token = jwt.sign(
-                {email: user.email},
-                process.env.JWT_SECRET,
-                {expiresIn: '1h'}
-            )
-            return res.status(200).json({message: `Welcome ${user.email}`, token})
+    const user = await prisma.user.findUnique({
+        where : {
+            email: email, 
+            password: password
         }
     })
+
+    if(!user){
+        return res.status(401).json({message: "Wrong credentials!"})
+    }
+    const token = jwt.sign(
+        {email: email},
+        process.env.JWT_SECRET,
+        {expiresIn: '1h'}
+    )
+    return res.status(200).json({message: `Welcome ${email}`, token})
+    
+    // const data = fs.readFile(usersFile, 'utf-8', (err, data) => {
+    //     const users = JSON.parse(data)
+
+    //     const user = users.find((user) => user.email === email)
+
+    //     if(!user){
+    //         return res.status(401).json({message: "Wrong credentials!"})
+    //     }
+    //     if(user.password !== password){
+    //         return res.status(401).json({message: "Wrong credentials!"})
+    //     }
+    //     else{
+    //         const token = jwt.sign(
+    //             {email: user.email},
+    //             process.env.JWT_SECRET,
+    //             {expiresIn: '1h'}
+    //         )
+    //         return res.status(200).json({message: `Welcome ${user.email}`, token})
+    //     }
+    // })
     
 
 
