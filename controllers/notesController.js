@@ -146,23 +146,30 @@ const updateNote = (req, res) => {
     const { id } = req.params
     const tresc = req.body.tresc
 
-    fs.readFile(notesFile, (err, data ) => {
-        const parsedData = JSON.parse(data)
-        const noteToUpdate = parsedData.find((item) => item.id == id)
-        if (!noteToUpdate){
-            return res.status(404).json({message: 'Not found'})
-        }
-        noteToUpdate.tresc = tresc
+
+    const updatedNote = prisma.note.update({
+        where: { id: id },
+        data: { tresc: tresc }
         
-        fs.writeFile(notesFile, JSON.stringify(parsedData, null, 2),(err) => {
-            if(err){
-                return res.status(500).json({message: 'Error updating note'})
-            }
-            else{
-                return res.status(200).json(noteToUpdate)
-            }
-        })
     })
+
+    // fs.readFile(notesFile, (err, data ) => {
+    //     const parsedData = JSON.parse(data)
+    //     const noteToUpdate = parsedData.find((item) => item.id == id)
+    //     if (!noteToUpdate){
+    //         return res.status(404).json({message: 'Not found'})
+    //     }
+    //     noteToUpdate.tresc = tresc
+        
+    //     fs.writeFile(notesFile, JSON.stringify(parsedData, null, 2),(err) => {
+    //         if(err){
+    //             return res.status(500).json({message: 'Error updating note'})
+    //         }
+    //         else{
+    //             return res.status(200).json(noteToUpdate)
+    //         }
+    //     })
+    // })
 
 
     // const { id } = req.params
