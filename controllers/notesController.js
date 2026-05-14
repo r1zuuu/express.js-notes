@@ -1,3 +1,5 @@
+
+const { prisma } = require('../lib/prisma')
 const fs = require('fs')
 const path = require('path')
 const crypto = require('crypto')
@@ -7,35 +9,56 @@ const notesFile = path.join(__dirname, '..', 'data', 'notes.json')
 const usersFile = path.join(__dirname, '..', 'data', 'users.json')
 
 // wszystkie notatki
-const getNotes = (req, res) => {
-
-    fs.readFile(notesFile, 'utf-8', (err, data) => {
-        if(err){
-            console.log('Error:', err)
-            return res.status(500).json({message: 'Error reading notes'})
+const getNotes = async (req, res) => {
+    const userId = req.user.email
+    const allNotes = await prisma.note.findMany({
+        where: {
+            user: { email: userId }
         }
-        const notes = JSON.parse(data)
-        res.json(notes)
     })
+    res.json(allNotes)
+    
+    // fs.readFile(notesFile, 'utf-8', (err, data) => {
+    //     if(err){
+    //         console.log('Error:', err)
+    //         return res.status(500).json({message: 'Error reading notes'})
+    //     }
+    //     const notes = JSON.parse(data)
+    //     res.json(notes)
+    // })
 }
 //post na notatki 
-const postNote = (req, res) => {
-    const tresc = req.body.tresc
-    const id = crypto.randomUUID()
-    fs.readFile(notesFile, 'utf-8', (err, data) => {
+const postNote = async (req, res) => {
+    const userId = req.user.email
+    const { tresc } = req.body
 
-        const notes = JSON.parse(data);
-        const notesToPush = {id, ...req.body}
-        notes.push(notesToPush)
-
-        fs.writeFile(notesFile, JSON.stringify(notes, null, 2), (err) => {
-            if(err){
-                return res.status(500).json({message: 'Error writing notes'})
-            }else{
-                return res.status(201).json(notesToPush)
-            }
-        })
+    const newNote = await prisma.note.create({
+        data: {
+            id: crypto.randomUUID(),
+            tresc,
+            user: { connect: { email: userId } }
+        }
     })
+    res.status(201).json(newNote)
+}
+
+
+    // const tresc = req.body.tresc
+    // const id = crypto.randomUUID()
+    // fs.readFile(notesFile, 'utf-8', (err, data) => {
+
+    //     const notes = JSON.parse(data);
+    //     const notesToPush = {id, ...req.body}
+    //     notes.push(notesToPush)
+
+    //     fs.writeFile(notesFile, JSON.stringify(notes, null, 2), (err) => {
+    //         if(err){
+    //             return res.status(500).json({message: 'Error writing notes'})
+    //         }else{
+    //             return res.status(201).json(notesToPush)
+    //         }
+    //     })
+    // })
 
     // fs.writeFileSync('./notes.json', 'utf-8',  (err, data) => {
     //     if(err){
@@ -51,7 +74,6 @@ const postNote = (req, res) => {
     //     }
 
     // })
-}
 //poszczegolna notatka o danym id find
 const getNote = (req, res) => {
     const { id } = req.params
