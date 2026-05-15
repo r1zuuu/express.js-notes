@@ -145,13 +145,23 @@ const deleteNote = (req, res) => {
 const updateNote = (req, res) => {
     const { id } = req.params
     const tresc = req.body.tresc
-
+    
+    if(!tresc || { id } == undefined){
+        return res.status(400).json({message: 'Bad request'})
+    }
 
     const updatedNote = prisma.note.update({
         where: { id: id },
         data: { tresc: tresc }
-        
     })
+    .then((note) => {
+        res.status(200).json(note)
+    })
+    .catch((err) => {
+        res.status(500).json({message: 'Error updating note'})
+    })
+
+
 
     // fs.readFile(notesFile, (err, data ) => {
     //     const parsedData = JSON.parse(data)
