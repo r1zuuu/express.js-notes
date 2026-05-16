@@ -151,7 +151,7 @@ const updateNote = (req, res) => {
     }
 
     const updatedNote = prisma.note.update({
-        where: { id: id },
+        where: { id: parseInt(id) },
         data: { tresc: tresc }
     })
     .then((note) => {
@@ -195,8 +195,9 @@ const updateNote = (req, res) => {
 }
 
 const login = async (req, res) =>{
-    const {email, password} = req.body;
-
+    const email = req.body.email
+    const password = req.body.password
+    
     const user = await prisma.user.findUnique({
         where : {
             email: email, 
@@ -207,12 +208,19 @@ const login = async (req, res) =>{
     if(!user){
         return res.status(401).json({message: "Wrong credentials!"})
     }
-    const token = jwt.sign(
-        {email: email},
-        process.env.JWT_SECRET,
-        {expiresIn: '1h'}
-    )
-    return res.status(200).json({message: `Welcome ${email}`, token})
+    if ( email == user.email && password == user.password){
+
+        const token = jwt.sign(
+            {email: email},
+            process.env.JWT_SECRET,
+            {expiresIn: '1h'}
+        )
+        return res.status(200).json({message: `Welcome ${email}`, token})
+    }
+    else
+        {
+        return res.status(401).json({message: "Wrong credentials!"})
+    }
     
     // const data = fs.readFile(usersFile, 'utf-8', (err, data) => {
     //     const users = JSON.parse(data)
