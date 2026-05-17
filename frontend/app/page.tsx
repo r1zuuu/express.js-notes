@@ -1,5 +1,6 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 
 export default function Home() {
@@ -33,14 +34,24 @@ export default function Home() {
       }
     })
     const data = await res.json()
+    console.log('data:', data)
     setNotes(data)
-    console.log(`dane: ${data}`)
   }
-
   return (
-    <div>
-      <button onClick={fetchNotes}>Fetch notes</button>
-      <pre>{JSON.stringify(notes, null, 2)}</pre>
+    <div className="flex justify-center">
+         <Button variant="outline" onClick={fetchNotes}>
+           Fetch notes
+         </Button>
+      <ul>
+        {notes.map((note) => (
+          <div className="flex flex-row justify-center gap-10 border-4 border-b-black rounded-sm pt-8 pb-8 w-200" key={note.id}>
+            <h3>Notatka #{note.id}</h3>
+            <h1>{new Date(note.createdAt).toLocaleString("pl-PL")}</h1>
+            <p>{note.tresc}</p>
+              <Button className=" " variant="destructive">Delete note</Button>
+          </div>
+        ))}
+      </ul>
     </div>
   )
 }
