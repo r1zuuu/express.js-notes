@@ -1,29 +1,13 @@
 {
-  "name": "notes",
+  "name": "notes-monorepo",
   "version": "1.0.0",
-  "description": "notes",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "notes-express"
-  },
-  "keywords": [
-    "none"
-  ],
-  "author": "rizu",
-  "license": "ISC",
-  "dependencies": {
-    "@prisma/client": "^5.22.0",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3"
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14",
-    "prisma": "^5.22.0"
+    "concurrently": "^9.1.0"
   }
 }
