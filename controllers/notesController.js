@@ -75,21 +75,38 @@ const postNote = async (req, res) => {
 
     // })
 //poszczegolna notatka o danym id find
-const getNote = (req, res) => {
-    const { id } = req.params
-
-    fs.readFile(notesFile, (err, data ) => {
-        if(err){
-            return res.status(500).json({message: 'Error reading notes'})
-        }
-        const parsedData = JSON.parse(data)
-
-        const note = parsedData.find((item) => item.id == id)
-        if (!note){
-            return res.status(404).json({message: 'Note not found'})
-        }
-        res.status(200).json(note)
+const getNote = async (req, res) => {
+    const id = req.params.id
+    if(id == undefined){
+        return res.status(400).json({message: 'Bad request'})
+    }
+    const note = await prisma.note.findUnique({
+        where: {
+            id: id 
+        },
+    
+    }).then((note) => {
+        return res.status(200).json(note)
+    }).catch((err) => {
+        return res.status(500).json({message: 'Error'})
     })
+
+
+
+
+
+    // fs.readFile(notesFile, (err, data ) => {
+    //     if(err){
+    //         return res.status(500).json({message: 'Error reading notes'})
+    //     }
+    //     const parsedData = JSON.parse(data)
+
+    //     const note = parsedData.find((item) => item.id == id)
+    //     if (!note){
+    //         return res.status(404).json({message: 'Note not found'})
+    //     }
+    //     res.status(200).json(note)
+    // })
 
     
 
@@ -106,7 +123,7 @@ const deleteNote = async (req, res) => {
         return res.status(400).json({message: 'Bad request'})
     }
     const noteToDelete = await prisma.note.delete({
-        where: { id: parseInt(id) },
+        where: { id: id },
 
     }).then((noteToDelete) =>{
         return res.status(200).json({message: 'Deleted successfully'})
@@ -156,10 +173,10 @@ const deleteNote = async (req, res) => {
 }
 
 const  updateNote = async (req, res) => {
-    const { id } =  req.params
+    const id =  req.params.id
     const tresc =  req.body.tresc
     
-    if(!tresc || { id } == undefined){
+    if(!tresc ||  !id  == undefined){
         return res.status(400).json({message: 'Bad request'})
     }
 
@@ -229,10 +246,6 @@ const login = async (req, res) =>{
             {expiresIn: '1h'}
         )
         return res.status(200).json({message: `Welcome ${email}`, token})
-    }
-    else
-        {
-        return res.status(401).json({message: "Wrong credentials!"})
     }
     
     // const data = fs.readFile(usersFile, 'utf-8', (err, data) => {
