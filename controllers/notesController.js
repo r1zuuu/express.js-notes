@@ -99,29 +99,42 @@ const getNote = (req, res) => {
     // }
     // res.status(200).json(found)
 }
-// usuniecie notatki maly bug nawet jak nie ma takiej notatki i tak zwroci 404 ale to mozna zajac sie pozniej -> .some()
-const deleteNote = (req, res) => {
-    const { id } = req.params
+// usuniecie notatki 
+const deleteNote = async (req, res) => {
+    const id = await req.params.id
+    if(id  == undefined){
+        return res.status(400).json({message: 'Bad request'})
+    }
+    const noteToDelete = await prisma.note.delete({
+        where: { id: parseInt(id) },
 
-    fs.readFile(notesFile, (err, data ) => {
-        if(err){
-            return res.status(500).json({message: 'Error reading notes problem with db'})
-        }
-        const parsedData = JSON.parse(data)
-        const filteredData = parsedData.filter((item) => item.id !== id)
-        if (filteredData.length === parsedData.length){
-            return res.status(404).json({message: 'Note not found'})
-        }
-           
-        fs.writeFile(notesFile, JSON.stringify(filteredData, null, 2),(err) => {
-            if(err){
-                return res.status(500).json({message: 'Error deleting note'})
-            }
-            else{
-                return res.status(200).json({message: 'Note deleted'})
-            }
-        })
+    }).then((noteToDelete) =>{
+        return res.status(200).json({message: 'Deleted successfully'})
+    }).catch((err) => {
+        return res.status(500).json({message: 'Error deleting note'})
     })
+
+
+
+    // fs.readFile(notesFile, (err, data ) => {
+    //     if(err){
+    //         return res.status(500).json({message: 'Error reading notes problem with db'})
+    //     }
+    //     const parsedData = JSON.parse(data)
+    //     const filteredData = parsedData.filter((item) => item.id !== id)
+    //     if (filteredData.length === parsedData.length){
+    //         return res.status(404).json({message: 'Note not found'})
+    //     }
+           
+    //     fs.writeFile(notesFile, JSON.stringify(filteredData, null, 2),(err) => {
+    //         if(err){
+    //             return res.status(500).json({message: 'Error deleting note'})
+    //         }
+    //         else{
+    //             return res.status(200).json({message: 'Note deleted'})
+    //         }
+    //     })
+    // })
  
     
 
@@ -142,15 +155,15 @@ const deleteNote = (req, res) => {
     // res.status(200).json({ message: "Usunięto", data: notes })
 }
 
-const updateNote = (req, res) => {
-    const { id } = req.params
-    const tresc = req.body.tresc
+const  updateNote = async (req, res) => {
+    const { id } =  req.params
+    const tresc =  req.body.tresc
     
     if(!tresc || { id } == undefined){
         return res.status(400).json({message: 'Bad request'})
     }
 
-    const updatedNote = prisma.note.update({
+    const updatedNote = await prisma.note.update({
         where: { id: parseInt(id) },
         data: { tresc: tresc }
     })
